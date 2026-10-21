@@ -30,6 +30,9 @@ class AuthInterceptor @Inject constructor() : Interceptor {
         try {
             val method = request.method
             val path = request.url.encodedPath
+            val fullUrl = request.url.toString()
+            android.util.Log.d("AuthInterceptor", "Signing request: $method $fullUrl (path: $path)")
+            
             val body = request.body?.let { reqBody ->
                 val buffer = Buffer()
                 reqBody.writeTo(buffer)
@@ -41,9 +44,10 @@ class AuthInterceptor @Inject constructor() : Interceptor {
             builder.addHeader("x-liner-signature", signature)
             builder.addHeader("x-liner-timestamp", timestamp.toString())
             builder.addHeader("x-liner-nonce", nonce)
+            android.util.Log.d("AuthInterceptor", "Added signing headers for $fullUrl")
         } catch (e: Exception) {
-            // If signing fails, continue without headers (will get 401)
-            e.printStackTrace()
+            // If signing fails, log the error
+            android.util.Log.e("AuthInterceptor", "Failed to sign request: ${e.message}", e)
         }
         
         builder.addHeader("Content-Type", "application/json")

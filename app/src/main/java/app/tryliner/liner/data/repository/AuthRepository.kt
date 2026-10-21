@@ -18,6 +18,9 @@ class AuthRepository @Inject constructor(
     suspend fun login(email: String, password: String): Result<AuthResponse> {
         return try {
             val response = api.login(LoginRequest(email, password))
+            android.util.Log.d("AuthRepository", "Login response: ${response.code()} ${response.message()}")
+            android.util.Log.d("AuthRepository", "Login response body: ${response.errorBody()?.string()}")
+            
             if (response.isSuccessful && response.body() != null) {
                 val authResponse = response.body()!!
                 currentUser = authResponse.user
@@ -26,9 +29,12 @@ class AuthRepository @Inject constructor(
                 authInterceptor.setAccessToken(accessToken)
                 Result.success(authResponse)
             } else {
-                Result.failure(Exception("Login failed: ${response.code()} ${response.message()}"))
+                val errorMsg = "Login failed: ${response.code()} ${response.message()}"
+                android.util.Log.e("AuthRepository", errorMsg)
+                Result.failure(Exception(errorMsg))
             }
         } catch (e: Exception) {
+            android.util.Log.e("AuthRepository", "Login exception: ${e.message}", e)
             Result.failure(e)
         }
     }
