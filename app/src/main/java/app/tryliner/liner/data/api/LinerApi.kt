@@ -77,6 +77,16 @@ interface LinerApi {
         @Query("limit") limit: Int = 50
     ): Response<List<Track>>
     
+    // Home Screen
+    @GET("v1/me/recommendations/daily-mixes")
+    suspend fun getDailyMixes(): Response<DailyMixesResponse>
+    
+    @GET("v1/explore/popular")
+    suspend fun getPopularTracks(
+        @Query("limit") limit: Int = 20,
+        @Query("offset") offset: Int = 0
+    ): Response<PopularTracksResponse>
+    
     // Playlists
     @GET("v1/playlists")
     suspend fun getPlaylists(): Response<List<Playlist>>

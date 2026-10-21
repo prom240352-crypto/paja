@@ -126,6 +126,19 @@ class MusicRepository @Inject constructor(
         }
     }
     
+    suspend fun getDailyMixes(): Result<DailyMixesResponse> {
+        return try {
+            val response = api.getDailyMixes()
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Failed to get daily mixes: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+    
     suspend fun addToLibrary(trackId: String): Result<Unit> {
         return try {
             val response = api.addToLibrary(trackId)
