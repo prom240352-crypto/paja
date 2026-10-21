@@ -11,15 +11,17 @@ data class User(
 )
 
 data class AuthTokens(
-    @SerializedName("access_token") val accessToken: String,
-    @SerializedName("refresh_token") val refreshToken: String?,
-    @SerializedName("expires_in") val expiresIn: Long?,
-    @SerializedName("token_type") val tokenType: String?
+    @SerializedName("accessToken") val accessToken: String,
+    @SerializedName("refreshToken") val refreshToken: String,
+    @SerializedName("accessTokenExpiresAt") val accessTokenExpiresAt: String,
+    @SerializedName("user") val user: User
 )
 
 data class AuthResponse(
-    @SerializedName("user") val user: User,
-    @SerializedName("tokens") val tokens: AuthTokens
+    @SerializedName("accessToken") val accessToken: String,
+    @SerializedName("refreshToken") val refreshToken: String,
+    @SerializedName("accessTokenExpiresAt") val accessTokenExpiresAt: String,
+    @SerializedName("user") val user: User
 )
 
 data class LoginRequest(
@@ -30,5 +32,6 @@ data class LoginRequest(
 data class RegisterRequest(
     @SerializedName("username") val username: String,
     @SerializedName("email") val email: String,
-    @SerializedName("password") val password: String
+    @SerializedName("password") val password: String,
+    @SerializedName("displayName") val displayName: String = username
 )

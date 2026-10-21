@@ -24,8 +24,8 @@ class AuthRepository @Inject constructor(
             if (response.isSuccessful && response.body() != null) {
                 val authResponse = response.body()!!
                 currentUser = authResponse.user
-                accessToken = authResponse.tokens.accessToken
-                refreshToken = authResponse.tokens.refreshToken
+                accessToken = authResponse.accessToken
+                refreshToken = authResponse.refreshToken
                 authInterceptor.setAccessToken(accessToken)
                 Result.success(authResponse)
             } else {
@@ -45,8 +45,8 @@ class AuthRepository @Inject constructor(
             if (response.isSuccessful && response.body() != null) {
                 val authResponse = response.body()!!
                 currentUser = authResponse.user
-                accessToken = authResponse.tokens.accessToken
-                refreshToken = authResponse.tokens.refreshToken
+                accessToken = authResponse.accessToken
+                refreshToken = authResponse.refreshToken
                 authInterceptor.setAccessToken(accessToken)
                 Result.success(authResponse)
             } else {
