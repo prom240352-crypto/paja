@@ -1,8 +1,10 @@
 package app.tryliner.liner.data.api
 
 import app.tryliner.liner.data.model.AuthTokens
+import app.tryliner.liner.util.RequestSigner
 import okhttp3.Interceptor
 import okhttp3.Response
+import okio.Buffer
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,14 +21,42 @@ class AuthInterceptor @Inject constructor() : Interceptor {
         val request = chain.request()
         val builder = request.newBuilder()
         
+        // Add authorization header if we have a token
         accessToken?.let { token ->
             builder.addHeader("Authorization", "Bearer $token")
         }
         
+        // Add request signing headers
+        try {
+            val method = request.method
+            val path = request.url.encodedPath
+            val body = request.body?.let { reqBody ->
+                val buffer = Buffer()
+                reqBody.writeTo(buffer)
+                buffer.readUtf8()
+            } ?: ""
+            
+            val (signature, timestamp, nonce) = RequestSigner.signRequest(method, path, body)
+            
+            builder.addHeader("x-liner-signature", signature)
+            builder.addHeader("x-liner-timestamp", timestamp.toString())
+            builder.addHeader("x-liner-nonce", nonce)
+        } catch (e: Exception) {
+            // If signing fails, continue without headers (will get 401)
+            e.printStackTrace()
+        }
+        
         builder.addHeader("Content-Type", "application/json")
         builder.addHeader("Accept", "application/json")
-        builder.addHeader("User-Agent", "Liner-Android/1.0.0")
+        builder.addHeader("User-Agent", "Liner-Android/2.0.1")
         
-        return chain.proceed(builder.build())
+        val response = chain.proceed(builder.build())
+        
+        // Sync server time from Date header
+        response.header("Date")?.let { dateHeader ->
+            RequestSigner.syncServerTime(dateHeader)
+        }
+        
+        return response
     }
 }
