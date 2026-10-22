@@ -141,7 +141,7 @@ class MusicRepository @Inject constructor(
     
     suspend fun addToLibrary(trackId: String): Result<Unit> {
         return try {
-            val response = api.addToLibrary(trackId)
+            val response = api.addToLibrary(mapOf("trackId" to trackId))
             if (response.isSuccessful) {
                 Result.success(Unit)
             } else {
