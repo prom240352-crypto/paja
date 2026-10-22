@@ -1,8 +1,5 @@
 package app.tryliner.liner.ui.screens.library
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,21 +22,31 @@ class LibraryViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
     
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    
     fun loadLibrary() {
         viewModelScope.launch {
             _isLoading.value = true
+            _errorMessage.value = null
             
             val result = musicRepository.getLibraryTracks()
             result.fold(
-                onSuccess = { tracks ->
-                    _libraryTracks.value = tracks
+                onSuccess = { response ->
+                    _libraryTracks.value = response.items
                 },
                 onFailure = { error ->
+                    _errorMessage.value = "Failed to load library: ${error.message}"
                     _libraryTracks.value = emptyList()
+                    android.util.Log.e("LibraryViewModel", "Failed to load library: ${error.message}")
                 }
             )
             
             _isLoading.value = false
         }
+    }
+    
+    fun refresh() {
+        loadLibrary()
     }
 }

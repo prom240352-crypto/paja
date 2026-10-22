@@ -15,6 +15,9 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import app.tryliner.liner.data.model.Track
+import app.tryliner.liner.data.model.DailyMixItem
+import app.tryliner.liner.data.player.PlayerState
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -23,7 +26,7 @@ fun HomeScreen(
     onNavigateToSearch: () -> Unit,
     onNavigateToLibrary: () -> Unit,
     onNavigateToPlayer: () -> Unit,
-    onTrackClick: (String) -> Unit = {},
+    playerState: PlayerState,
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val recentPlays by viewModel.recentPlays.collectAsState()
@@ -113,7 +116,10 @@ fun HomeScreen(
                     items(recentPlays.take(10)) { track ->
                         TrackCard(
                             track = track,
-                            onClick = { onTrackClick(track.id) }
+                            onClick = {
+                                playerState.setTrack(track)
+                                onNavigateToPlayer()
+                            }
                         )
                     }
                 }
@@ -174,7 +180,7 @@ fun HomeScreen(
 
 @Composable
 fun TrackCard(
-    track: app.tryliner.liner.data.model.Track,
+    track: Track,
     onClick: () -> Unit
 ) {
     Card(
@@ -185,7 +191,7 @@ fun TrackCard(
     ) {
         Column {
             AsyncImage(
-                model = track.covers?.best() ?: track.cover,
+                model = track.cover?.url,
                 contentDescription = track.title,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -204,7 +210,7 @@ fun TrackCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = track.artist,
+                    text = track.artistName,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -217,7 +223,7 @@ fun TrackCard(
 
 @Composable
 fun DailyMixCard(
-    mix: app.tryliner.liner.data.model.DailyMixItem
+    mix: DailyMixItem
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -229,7 +235,7 @@ fun DailyMixCard(
         ) {
             mix.cover?.let { cover ->
                 AsyncImage(
-                    model = cover.best(),
+                    model = cover.url,
                     contentDescription = mix.title,
                     modifier = Modifier
                         .size(80.dp)

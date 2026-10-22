@@ -3,8 +3,8 @@ package app.tryliner.liner.ui.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import app.tryliner.liner.data.model.DailyMixItem
 import app.tryliner.liner.data.model.Track
+import app.tryliner.liner.data.model.DailyMixItem
 import app.tryliner.liner.data.repository.MusicRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,8 +42,8 @@ class HomeViewModel @Inject constructor(
                 // Load recent plays
                 val recentResult = musicRepository.getRecentPlays()
                 recentResult.fold(
-                    onSuccess = { tracks ->
-                        _recentPlays.value = tracks
+                    onSuccess = { response ->
+                        _recentPlays.value = response.items.map { it.track }
                     },
                     onFailure = { error ->
                         android.util.Log.e("HomeViewModel", "Failed to load recent plays: ${error.message}")

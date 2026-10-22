@@ -1,10 +1,12 @@
 package app.tryliner.liner.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import app.tryliner.liner.data.player.PlayerState
 import app.tryliner.liner.ui.screens.login.LoginScreen
 import app.tryliner.liner.ui.screens.search.SearchScreen
 import app.tryliner.liner.ui.screens.player.PlayerScreen
@@ -27,6 +29,7 @@ object Routes {
 @Composable
 fun LinerNavHost() {
     val navController = rememberNavController()
+    val playerState = hiltViewModel<PlayerStateViewModel>().playerState
     
     NavHost(
         navController = navController,
@@ -46,14 +49,16 @@ fun LinerNavHost() {
             HomeScreen(
                 onNavigateToSearch = { navController.navigate(Routes.SEARCH) },
                 onNavigateToLibrary = { navController.navigate(Routes.LIBRARY) },
-                onNavigateToPlayer = { navController.navigate(Routes.PLAYER) }
+                onNavigateToPlayer = { navController.navigate(Routes.PLAYER) },
+                playerState = playerState
             )
         }
         
         composable(Routes.SEARCH) {
             SearchScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onTrackClick = { navController.navigate(Routes.PLAYER) }
+                onTrackClick = { navController.navigate(Routes.PLAYER) },
+                playerState = playerState
             )
         }
         
@@ -66,7 +71,8 @@ fun LinerNavHost() {
         composable(Routes.LIBRARY) {
             LibraryScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onTrackClick = { navController.navigate(Routes.PLAYER) }
+                onTrackClick = { navController.navigate(Routes.PLAYER) },
+                playerState = playerState
             )
         }
     }

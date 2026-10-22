@@ -45,6 +45,7 @@ object NetworkModule {
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         val gson = GsonBuilder()
             .setLenient()
+            .registerTypeAdapter(SearchItem::class.java, SearchItemDeserializer())
             .create()
         
         return Retrofit.Builder()

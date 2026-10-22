@@ -60,22 +60,23 @@ interface LinerApi {
     suspend fun getAlbumTracks(@Path("id") albumId: String): Response<List<Track>>
     
     // Library
-    @GET("v1/me/playlists")
+    @GET("v1/me/library/tracks")
     suspend fun getLibraryTracks(
         @Query("limit") limit: Int = 50,
-        @Query("offset") offset: Int = 0
-    ): Response<List<Track>>
+        @Query("cursor") cursor: String? = null
+    ): Response<LibraryTracksResponse>
     
-    @POST("v1/me/playlists/{id}")
-    suspend fun addToLibrary(@Path("id") trackId: String): Response<Unit>
+    @POST("v1/me/library/tracks")
+    suspend fun addToLibrary(@Body body: Map<String, String>): Response<Unit>
     
-    @DELETE("v1/me/playlists/{id}")
-    suspend fun removeFromLibrary(@Path("id") trackId: String): Response<Unit>
+    @DELETE("v1/me/library/tracks")
+    suspend fun removeFromLibrary(@Body body: Map<String, String>): Response<Unit>
     
-    @GET("v1/me/recent")
+    @GET("v1/me/history")
     suspend fun getRecentPlays(
-        @Query("limit") limit: Int = 50
-    ): Response<List<Track>>
+        @Query("limit") limit: Int = 50,
+        @Query("cursor") cursor: String? = null
+    ): Response<PlaybackHistoryResponse>
     
     // Home Screen
     @GET("v1/me/recommendations/daily-mixes")

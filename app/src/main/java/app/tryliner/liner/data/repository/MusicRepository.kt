@@ -100,7 +100,7 @@ class MusicRepository @Inject constructor(
         }
     }
     
-    suspend fun getLibraryTracks(): Result<List<Track>> {
+    suspend fun getLibraryTracks(): Result<LibraryTracksResponse> {
         return try {
             val response = api.getLibraryTracks()
             if (response.isSuccessful && response.body() != null) {
@@ -113,7 +113,7 @@ class MusicRepository @Inject constructor(
         }
     }
     
-    suspend fun getRecentPlays(): Result<List<Track>> {
+    suspend fun getRecentPlays(): Result<PlaybackHistoryResponse> {
         return try {
             val response = api.getRecentPlays()
             if (response.isSuccessful && response.body() != null) {

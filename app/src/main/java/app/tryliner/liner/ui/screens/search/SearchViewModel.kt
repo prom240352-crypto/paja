@@ -1,7 +1,5 @@
 package app.tryliner.liner.ui.screens.search
 
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -48,6 +46,7 @@ class SearchViewModel @Inject constructor(
                 },
                 onFailure = { error ->
                     _searchResults.value = null
+                    android.util.Log.e("SearchViewModel", "Search failed: ${error.message}")
                 }
             )
             
