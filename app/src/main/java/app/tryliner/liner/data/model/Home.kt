@@ -7,7 +7,7 @@ data class DailyMixItem(
     @SerializedName("title") val title: String,
     @SerializedName("description") val description: String,
     @SerializedName("clusterArtists") val clusterArtists: List<String>?,
-    @SerializedName("cover") val cover: CoverSet?,
+    @SerializedName("cover") val cover: Cover?,
     @SerializedName("trackCount") val trackCount: Int,
     @SerializedName("tracks") val tracks: List<Track>?
 )
