@@ -137,7 +137,15 @@ fun HomeScreen(
             }
             
             items(dailyMixes) { mix ->
-                DailyMixCard(mix = mix)
+                DailyMixCard(
+                    mix = mix,
+                    onMixClick = { selectedMix ->
+                        selectedMix.tracks?.firstOrNull()?.let { firstTrack ->
+                            playerState.setTrack(firstTrack)
+                            onNavigateToPlayer()
+                        }
+                    }
+                )
             }
         }
         
@@ -223,10 +231,13 @@ fun TrackCard(
 
 @Composable
 fun DailyMixCard(
-    mix: DailyMixItem
+    mix: DailyMixItem,
+    onMixClick: (DailyMixItem) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onMixClick(mix) },
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(

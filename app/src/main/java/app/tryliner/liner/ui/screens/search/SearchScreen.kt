@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
@@ -20,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.tryliner.liner.data.model.SearchItem
 import app.tryliner.liner.data.model.Track
-import app.tryliner.liner.data.player.PlayerState
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -28,14 +28,24 @@ import coil.compose.AsyncImage
 fun SearchScreen(
     onNavigateBack: () -> Unit,
     onTrackClick: (Track) -> Unit,
-    playerState: PlayerState,
     viewModel: SearchViewModel = hiltViewModel()
 ) {
     var searchQuery by remember { mutableStateOf("") }
     val searchResults by viewModel.searchResults.collectAsState()
     val isSearching by viewModel.isSearching.collectAsState()
+    val addingTrackIds by viewModel.addingTrackIds.collectAsState()
+    val libraryMessage by viewModel.libraryMessage.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(libraryMessage) {
+        libraryMessage?.let { message ->
+            snackbarHostState.showSnackbar(message)
+            viewModel.clearLibraryMessage()
+        }
+    }
     
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Search") },
@@ -86,9 +96,16 @@ fun SearchScreen(
                                     TrackSearchItem(
                                         item = item,
                                         onClick = {
-                                            playerState.setTrack(track)
+                                            android.util.Log.d(
+                                                "SearchScreen",
+                                                "Track clicked: ${track.title}"
+                                            )
                                             onTrackClick(track)
-                                        }
+                                        },
+                                        onAddToLibrary = {
+                                            viewModel.addToLibrary(track.id)
+                                        },
+                                        isAddingToLibrary = track.id in addingTrackIds
                                     )
                                 }
                             }
@@ -123,7 +140,9 @@ fun SearchScreen(
 @Composable
 fun TrackSearchItem(
     item: SearchItem,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onAddToLibrary: (() -> Unit)? = null,
+    isAddingToLibrary: Boolean = false
 ) {
     Card(
         modifier = Modifier
@@ -167,6 +186,25 @@ fun TrackSearchItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+            }
+
+            onAddToLibrary?.let { addToLibrary ->
+                IconButton(
+                    onClick = addToLibrary,
+                    enabled = !isAddingToLibrary
+                ) {
+                    if (isAddingToLibrary) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Icon(
+                            Icons.Default.Add,
+                            contentDescription = "Add to Library"
+                        )
+                    }
+                }
             }
             
             IconButton(onClick = onClick) {

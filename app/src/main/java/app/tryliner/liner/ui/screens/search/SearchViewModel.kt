@@ -23,6 +23,12 @@ class SearchViewModel @Inject constructor(
     
     private val _isSearching = MutableStateFlow(false)
     val isSearching: StateFlow<Boolean> = _isSearching.asStateFlow()
+
+    private val _addingTrackIds = MutableStateFlow<Set<String>>(emptySet())
+    val addingTrackIds: StateFlow<Set<String>> = _addingTrackIds.asStateFlow()
+
+    private val _libraryMessage = MutableStateFlow<String?>(null)
+    val libraryMessage: StateFlow<String?> = _libraryMessage.asStateFlow()
     
     private var searchJob: Job? = null
     
@@ -52,5 +58,32 @@ class SearchViewModel @Inject constructor(
             
             _isSearching.value = false
         }
+    }
+
+    fun addToLibrary(trackId: String) {
+        if (trackId in _addingTrackIds.value) return
+
+        viewModelScope.launch {
+            _addingTrackIds.value += trackId
+            musicRepository.addToLibrary(trackId).fold(
+                onSuccess = {
+                    _libraryMessage.value = "Added to your library"
+                },
+                onFailure = { error ->
+                    _libraryMessage.value =
+                        "Couldn't add to library: ${error.message ?: "Unknown error"}"
+                    android.util.Log.e(
+                        "SearchViewModel",
+                        "Failed to add track $trackId to library",
+                        error
+                    )
+                }
+            )
+            _addingTrackIds.value -= trackId
+        }
+    }
+
+    fun clearLibraryMessage() {
+        _libraryMessage.value = null
     }
 }

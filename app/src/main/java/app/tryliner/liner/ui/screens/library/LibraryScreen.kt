@@ -18,15 +18,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import app.tryliner.liner.data.model.Track
-import app.tryliner.liner.data.player.PlayerState
 import coil.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToSearch: () -> Unit,
     onTrackClick: (Track) -> Unit,
-    playerState: PlayerState,
     viewModel: LibraryViewModel = hiltViewModel()
 ) {
     val libraryTracks by viewModel.libraryTracks.collectAsState()
@@ -92,6 +91,10 @@ fun LibraryScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(onClick = onNavigateToSearch) {
+                        Text("Search Music")
+                    }
                 }
             } else {
                 LazyColumn(
@@ -105,7 +108,6 @@ fun LibraryScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
-                                    playerState.setTrack(track)
                                     onTrackClick(track)
                                 },
                             colors = CardDefaults.cardColors(
@@ -146,7 +148,6 @@ fun LibraryScreen(
                                     )
                                 }
                                 IconButton(onClick = {
-                                    playerState.setTrack(track)
                                     onTrackClick(track)
                                 }) {
                                     Icon(
