@@ -80,23 +80,25 @@ fun SearchScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(searchResults?.items ?: emptyList()) { item ->
-                        when (item) {
-                            is SearchItem.TrackItem -> {
-                                TrackSearchItem(
-                                    item = item,
-                                    onClick = {
-                                        playerState.setTrack(item.track)
-                                        onTrackClick(item.track)
-                                    }
-                                )
+                        when (item.type) {
+                            "track" -> {
+                                item.track?.let { track ->
+                                    TrackSearchItem(
+                                        item = item,
+                                        onClick = {
+                                            playerState.setTrack(track)
+                                            onTrackClick(track)
+                                        }
+                                    )
+                                }
                             }
-                            is SearchItem.ArtistItem -> {
+                            "artist" -> {
                                 ArtistSearchItem(item = item)
                             }
-                            is SearchItem.AlbumItem -> {
+                            "album" -> {
                                 AlbumSearchItem(item = item)
                             }
-                            is SearchItem.PlaylistItem -> {
+                            "playlist" -> {
                                 PlaylistSearchItem(item = item)
                             }
                         }
@@ -120,7 +122,7 @@ fun SearchScreen(
 
 @Composable
 fun TrackSearchItem(
-    item: SearchItem.TrackItem,
+    item: SearchItem,
     onClick: () -> Unit
 ) {
     Card(
@@ -140,7 +142,7 @@ fun TrackSearchItem(
             item.cover?.let { cover ->
                 AsyncImage(
                     model = cover.url,
-                    contentDescription = item.title,
+                    contentDescription = item.displayName,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(4.dp)),
@@ -153,13 +155,13 @@ fun TrackSearchItem(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
-                    text = item.title,
+                    text = item.displayName,
                     style = MaterialTheme.typography.titleMedium,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
-                    text = item.artists.joinToString(", ") { it.name },
+                    text = item.artistName,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
@@ -179,7 +181,7 @@ fun TrackSearchItem(
 }
 
 @Composable
-fun ArtistSearchItem(item: SearchItem.ArtistItem) {
+fun ArtistSearchItem(item: SearchItem) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -195,7 +197,7 @@ fun ArtistSearchItem(item: SearchItem.ArtistItem) {
             item.cover?.let { cover ->
                 AsyncImage(
                     model = cover.url,
-                    contentDescription = item.name,
+                    contentDescription = item.displayName,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(24.dp)),
@@ -206,7 +208,7 @@ fun ArtistSearchItem(item: SearchItem.ArtistItem) {
             
             Column {
                 Text(
-                    text = item.name,
+                    text = item.displayName,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
@@ -220,7 +222,7 @@ fun ArtistSearchItem(item: SearchItem.ArtistItem) {
 }
 
 @Composable
-fun AlbumSearchItem(item: SearchItem.AlbumItem) {
+fun AlbumSearchItem(item: SearchItem) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -236,7 +238,7 @@ fun AlbumSearchItem(item: SearchItem.AlbumItem) {
             item.cover?.let { cover ->
                 AsyncImage(
                     model = cover.url,
-                    contentDescription = item.title,
+                    contentDescription = item.displayName,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(4.dp)),
@@ -247,11 +249,11 @@ fun AlbumSearchItem(item: SearchItem.AlbumItem) {
             
             Column {
                 Text(
-                    text = item.title,
+                    text = item.displayName,
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = item.artists.joinToString(", ") { it.name },
+                    text = item.artistName,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -261,7 +263,7 @@ fun AlbumSearchItem(item: SearchItem.AlbumItem) {
 }
 
 @Composable
-fun PlaylistSearchItem(item: SearchItem.PlaylistItem) {
+fun PlaylistSearchItem(item: SearchItem) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -277,7 +279,7 @@ fun PlaylistSearchItem(item: SearchItem.PlaylistItem) {
             item.cover?.let { cover ->
                 AsyncImage(
                     model = cover.url,
-                    contentDescription = item.title,
+                    contentDescription = item.displayName,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(4.dp)),
@@ -288,7 +290,7 @@ fun PlaylistSearchItem(item: SearchItem.PlaylistItem) {
             
             Column {
                 Text(
-                    text = item.title,
+                    text = item.displayName,
                     style = MaterialTheme.typography.titleMedium
                 )
                 item.author?.let { author ->

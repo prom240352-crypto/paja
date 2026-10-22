@@ -36,47 +36,29 @@ data class SearchResponse(
     @SerializedName("items") val items: List<SearchItem>
 )
 
-sealed class SearchItem {
-    abstract val id: String
-    abstract val type: String
+data class SearchItem(
+    @SerializedName("type") val type: String,
+    @SerializedName("id") val id: String,
+    @SerializedName("title") val title: String?,
+    @SerializedName("name") val name: String?,
+    @SerializedName("artists") val artists: List<TrackArtist>?,
+    @SerializedName("album") val album: TrackAlbum?,
+    @SerializedName("durationMs") val durationMs: Long?,
+    @SerializedName("cover") val cover: Cover?,
+    @SerializedName("explicit") val explicit: Boolean?,
+    @SerializedName("year") val year: Int?,
+    @SerializedName("author") val author: String?
+) {
+    val displayName: String
+        get() = title ?: name ?: "Unknown"
     
-    data class TrackItem(
-        override val id: String,
-        override val type: String = "track",
-        val title: String,
-        val artists: List<TrackArtist>,
-        val album: TrackAlbum?,
-        val durationMs: Long,
-        val cover: Cover?,
-        val explicit: Boolean?
-    ) : SearchItem() {
-        val track: Track
-            get() = Track(id, title, artists, album, durationMs, cover, explicit)
-    }
+    val artistName: String
+        get() = artists?.firstOrNull()?.name ?: author ?: "Unknown Artist"
     
-    data class ArtistItem(
-        override val id: String,
-        override val type: String = "artist",
-        val name: String,
-        val cover: Cover?
-    ) : SearchItem()
-    
-    data class AlbumItem(
-        override val id: String,
-        override val type: String = "album",
-        val title: String,
-        val artists: List<TrackArtist>,
-        val year: Int?,
-        val cover: Cover?
-    ) : SearchItem()
-    
-    data class PlaylistItem(
-        override val id: String,
-        override val type: String = "playlist",
-        val title: String,
-        val author: String?,
-        val cover: Cover?
-    ) : SearchItem()
+    val track: Track?
+        get() = if (type == "track" && title != null && artists != null && durationMs != null) {
+            Track(id, title, artists, album, durationMs, cover, explicit)
+        } else null
 }
 
 data class Artist(
